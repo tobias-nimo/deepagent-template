@@ -1,7 +1,7 @@
 [project]
 name = "deepagent-template"
 version = "0.1.0"
-description = "A LangChain DeepAgent template with CopilotKit UI"
+description = "A LangChain DeepAgent template with Agent Chat UI"
 readme = "README.md"
 requires-python = ">=3.12"
 license = { text = "MIT" }
@@ -18,9 +18,7 @@ dependencies = [
     "langchain-mcp-adapters>=0.1.0",
     # ── Config ─────────────────────────────────────────────────────────────────
     "pydantic-settings>=2.0.0",
-    # ── Server ─────────────────────────────────────────────────────────────────
-    "fastapi>=0.115.0",
-    "uvicorn[standard]>=0.30.0",
+    # ── LangGraph CLI ──────────────────────────────────────────────────────────
     "langgraph-cli[inmem]>=0.4.12",
 ]
 
@@ -31,9 +29,7 @@ dev = [
     "httpx>=0.27.0",
 ]
 
-# To start the backend server run:
-#   uv run uvicorn src.server:app --reload --host 0.0.0.0 --port 8000
-# Or for LangGraph dev server:
+# To start a LangGraph dev server:
 #   uv run langgraph dev
 
 [build-system]

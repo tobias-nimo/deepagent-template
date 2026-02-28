@@ -65,34 +65,30 @@ Skill creation involves these steps:
 
 1. Understand the skill with concrete examples
 2. Plan reusable skill contents (scripts, references, assets)
-3. Initialize the skill (run init_skill.ts)
+3. Initialize the skill (run init_skill.py)
 4. Edit the skill (implement resources and write SKILL.md)
-5. Validate the skill (run quick_validate.ts)
+5. Validate the skill structure manually
 6. Iterate based on real usage
 
 ### Step 3: Initializing the Skill
 
-When creating a new skill from scratch, run the `init_skill.ts` script:
+When creating a new skill from scratch, run the `init_skill.py` script:
 
 ```bash
-npx tsx scripts/init_skill.ts <skill-name> --path <output-directory>
+uv run python scripts/init_skill.py <skill-name> --path <output-directory>
 ```
 
 For deepagents, use the agent's skills directory:
 
 ```bash
-npx tsx scripts/init_skill.ts <skill-name> --path ~/.deepagents/agent/skills
+uv run python scripts/init_skill.py <skill-name> --path ~/.deepagents/agent/skills
 ```
 
 ### Step 5: Validate the Skill
 
-Once development of the skill is complete, validate it:
+Once development of the skill is complete, verify it manually:
 
-```bash
-npx tsx scripts/quick_validate.ts <path/to/skill-folder>
-```
-
-The validation script checks:
+The checklist covers:
 
 - YAML frontmatter format and required fields
 - Skill naming conventions (hyphen-case, max 64 characters)

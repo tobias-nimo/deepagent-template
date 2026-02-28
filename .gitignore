@@ -30,20 +30,10 @@ env/
 
 # LangGraph / LangSmith
 .langgraph/
+.langgraph_api/
 
 # Workspace files created by the agent
 workspace/
-
-# Node.js / Next.js
-frontend/node_modules/
-frontend/.next/
-frontend/out/
-frontend/.env.local
-frontend/.env.*.local
-frontend/npm-debug.log*
-frontend/yarn-debug.log*
-frontend/yarn-error.log*
-frontend/.pnpm-debug.log*
 
 # OS
 .DS_Store
