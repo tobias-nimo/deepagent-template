@@ -27,6 +27,9 @@ class Settings(BaseSettings):
     langchain_api_key: str = ""
     langchain_project: str = ""
 
+    # ── Agent ───-─────────────────────────────────────────────────────────────
+    debug: bool = False
+
     # ── Paths ───-─────────────────────────────────────────────────────────────
     project_root: str = "."
 
