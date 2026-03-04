@@ -4,7 +4,7 @@
     "dependencies": ["."],
     "package_manager": "uv",
     "graphs": {
-      "agent": "src.agent.graph:agent"
+      "agent": "src.agents.deepagent:deepagent"
     },
     "env": ".env"
 }

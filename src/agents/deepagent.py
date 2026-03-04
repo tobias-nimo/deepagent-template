@@ -19,17 +19,19 @@ llm = ChatGroq(
 backend = FilesystemBackend(root_dir=settings.project_root, virtual_mode=True)
 
 # --- Deep Agent ---
-agent = create_deep_agent(
+deepagent = create_deep_agent(
     # LLM + system prompt
     model=llm,
-    name="coordinator-agent",
-    system_prompt=prompts.get("coordinator-agent"),
+    system_prompt=prompts.get("general"),
 
     # Core capabilities
     backend=backend,
     subagents=subagents,
     skills=["./src/skills/"],
     memory=["./src/AGENTS.md"],
+
+    # Tools
+    tools=[]
 
     # HITL
     interrupt_on={

@@ -1,4 +1,4 @@
-# tools/web_search_tools.py
+# tools/web_research.py
 
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
@@ -37,4 +37,4 @@ def _load_tools_sync() -> list:
 
 
 # Load tools once at module import time.
-web_search_tools = _load_tools_sync()
+tavily_tools = _load_tools_sync()
