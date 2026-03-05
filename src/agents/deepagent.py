@@ -31,7 +31,7 @@ deepagent = create_deep_agent(
     memory=["./src/AGENTS.md"],
 
     # Tools
-    tools=[]
+    tools=[],
 
     # HITL
     interrupt_on={
