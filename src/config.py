@@ -33,8 +33,4 @@ class Settings(BaseSettings):
     # ── Paths ───-─────────────────────────────────────────────────────────────
     project_root: str = "."
 
-    # ── Server ────────────────────────────────────────────────────────────────
-    host: str = "0.0.0.0"
-    port: int = 8000
-
 settings = Settings()
