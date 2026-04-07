@@ -16,6 +16,7 @@ dependencies = [
     "langchain-core>=0.3.0",
     "langchain-groq>=0.2.0",
     "langchain-mcp-adapters>=0.1.0",
+    "langchain-tavily>=0.1.0",
     # ── Config ─────────────────────────────────────────────────────────────────
     "pydantic-settings>=2.0.0",
     # ── LangGraph CLI ──────────────────────────────────────────────────────────
