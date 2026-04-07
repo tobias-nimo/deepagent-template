@@ -94,20 +94,25 @@ Studio lets you visually inspect graph runs, step through nodes, and replay trac
 ```
 deepagent-template/
 ├── src/
-│   ├── agent/
-│   │   ├── graph.py          # Main LangGraph graph; exports `graph`
-│   │   └── subagents.py      # Subagent definitions (research-agent)
+│   ├── agents/
+│   │   ├── deepagent.py      # Main Deep Agent; exports `deepagent`
+│   │   └── subagents.py      # Subagent definitions
 │   ├── tools/
-│   │   └── web_search_tools.py  # Tavily MCP tool loader
+│   │   ├── tavily.py         # Tavily search/extract/crawl/map/research tools
+│   │   └── view_image.py     # Image viewing and content injection tool
+│   ├── middleware/
+│   │   └── image_content.py  # Middleware to inject images into LLM context
 │   ├── prompts/
 │   │   ├── __init__.py       # Prompt loader (reads .md files by name)
-│   │   ├── coordinator-agent.md
-│   │   └── research-subagent.md
+│   │   └── general.md        # General agent system prompt
 │   ├── skills/
-│   │   ├── skill-creator/    # Guidance for creating new skills
-│   │   └── web-research/     # Structured web research workflow
+│   │   ├── general/
+│   │   │   └── web-research/     # Structured web research workflow
+│   │   └── tavily/               # Tavily skills (search, extract, map, crawl, research)
+│   ├── utils/
+│   │   └── workspace.py      # Workspace setup and skill syncing
 │   ├── config.py             # Pydantic settings (loads from .env)
-│   └── server.py             # Optional FastAPI server for custom endpoints
+│   └── __init__.py
 ├── tests/                    # Pytest test suite
 ├── langgraph.json            # LangGraph server config
 ├── pyproject.toml            # Python dependencies and tooling
@@ -116,9 +121,9 @@ deepagent-template/
 
 ## LLM Configuration
 
-The template defaults to **Groq** (free tier).
+The template defaults to **Groq** (free tier, via `langchain-groq`).
 
-To switch providers, update `src/agent/graph.py` and `src/agent/subagents.py`:
+To switch providers, update `src/agents/deepagent.py`:
 
 ```python
 # OpenAI
@@ -130,21 +135,39 @@ from langchain_anthropic import ChatAnthropic
 llm = ChatAnthropic(model="claude-opus-4-6", api_key=settings.anthropic_api_key)
 ```
 
+## Tools
+
+The agent has access to the following tools:
+
+### Tavily Search Tools (`src/tools/tavily.py`)
+
+- **`tavily_search`** — LLM-optimized web search with snippets, domain filtering, and time ranges
+- **`tavily_extract`** — Extract clean markdown from specific URLs, with JavaScript rendering support
+- **`tavily_crawl`** — Bulk extract content from multiple pages on a site with depth/breadth control
+- **`tavily_map`** — Discover all URLs on a site without extracting content
+- **`tavily_research`** — AI-powered deep research with citations and multi-source synthesis
+
+### Image Tools (`src/tools/view_image.py`)
+
+- **`view_image`** — Load images for direct inspection (images are injected into LLM context via middleware)
+
 ## Skills
 
 Skills are markdown files that provide the agent with specialized knowledge and workflows.
 They live in `src/skills/<skill-name>/SKILL.md`.
 
-See `src/skills/skill-creator/SKILL.md` for the full guide.
+Available skills include:
+
+- **Tavily Skills** (`src/skills/tavily/`) — Documentation on using Tavily search, extract, crawl, map, and research tools
+- **Web Research** (`src/skills/general/web-research/`) — Structured workflow for comprehensive web research
 
 ## Human-in-the-Loop (HITL)
 
-The coordinator agent pauses and waits for human approval before:
-- Writing new files (`write_file`)
+The agent pauses and waits for human approval before:
 - Editing existing files (`edit_file`)
 
-This is configured in `interrupt_on` inside `src/agent/graph.py`. Set a key to `False`
-to disable interrupts for that tool.
+This is configured in `interrupt_on` inside `src/agents/deepagent.py`. Set a key to `True`
+to enable interrupts for that tool (default options: approve, edit, reject).
 
 ## Running Tests
 
@@ -156,5 +179,9 @@ uv run pytest -v
 
 - **LangSmith Tracing**: set `LANGCHAIN_TRACING_V2=true` and `LANGCHAIN_API_KEY` to send
   traces to LangSmith for debugging.
-- **Adding tools**: add LangChain tools to `src/tools/` and pass them to the appropriate
-  subagent in `src/agent/subagents.py`.
+- **Adding tools**: add LangChain tools to `src/tools/` and pass them to the Deep Agent in
+  `src/agents/deepagent.py`.
+- **Workspace sync**: the agent automatically syncs skills from `src/skills/` to `.workspace/skills/`
+  on startup via `setup_workspace()`.
+- **Middleware**: custom middleware can be added to process tool outputs before returning to the LLM.
+  See `src/middleware/image_content.py` for an example.

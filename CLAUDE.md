@@ -27,8 +27,17 @@ This project uses skills that contain up-to-date patterns and working reference 
 
 ## Environment Setup
 
-Required environment variables:
+Required environment variables (see `example.env`):
+
 ```bash
-OPENAI_API_KEY=<your-key>  # For OpenAI models
-ANTHROPIC_API_KEY=<your-key>  # For Anthropic models
+GROQ_API_KEY=<your-key>           # Groq API key (primary LLM)
+TAVILY_API_KEY=<your-key>         # Tavily API key (web search)
+LANGCHAIN_TRACING_V2=true         # Optional: enable LangSmith tracing
+LANGCHAIN_API_KEY=<your-key>      # Optional: LangSmith API key
+LANGCHAIN_PROJECT=<project-name>  # Optional: LangSmith project name
+PROJECT_ROOT=.                    # Optional: project root directory
 ```
+
+To use a different LLM provider, update `src/agents/deepagent.py`:
+- OpenAI: `from langchain_openai import ChatOpenAI`
+- Anthropic: `from langchain_anthropic import ChatAnthropic`
