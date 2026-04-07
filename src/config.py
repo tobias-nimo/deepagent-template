@@ -21,7 +21,6 @@ class Settings(BaseSettings):
 
     # ── Tools ─────────────────────────────────────────────────────────────────
     tavily_api_key: str = ""
-    mistral_api_key: str = ""
 
     # ── LangSmith ─────────────────────────────────────────────────────────────
     langchain_tracing_v2: bool = False
