@@ -1,47 +1,72 @@
-# agent/graph.py
+# agents/deepagent.py
+
+from pathlib import Path
+from datetime import date
 
 from deepagents import create_deep_agent
 from deepagents.backends import FilesystemBackend
-#from langgraph.checkpoint.memory import MemorySaver
 from langchain_groq import ChatGroq
 
 from ..config import settings
 from ..prompts import prompts
+from ..middleware import image_content_middleware
+from ..tools.view_image import view_image
 from .subagents import subagents
+from ..utils import setup_workspace, SKILLS_DEST, AGENT_MD
 
-# --- Chat Model ---
+# Set up .workspace/
+_ROOT = Path(settings.project_root)
+setup_workspace()
+
+# Chat Model
 llm = ChatGroq(
-    model="openai/gpt-oss-120b",
+    model="openai/gpt-oss-20b",
     api_key=settings.groq_api_key,
 )
 
-# --- Backend ---
+# Backend
 backend = FilesystemBackend(root_dir=settings.project_root, virtual_mode=True)
 
-# --- Deep Agent ---
+# Deep Agent
 deepagent = create_deep_agent(
-    # LLM + system prompt
+    # LLM
     model=llm,
-    system_prompt=prompts.get("general"),
+    
+    # System prompt
+    system_prompt=prompts.get(
+        "general",
+        project_root=settings.project_root,
+        today_date=str(date.today()),
+    ),
 
-    # Core capabilities
-    backend=backend,
+    # SubAgents
     subagents=subagents,
-    skills=["./src/skills/"],
-    memory=["./src/AGENTS.md"],
+
+    # Skills + Memory
+    skills=[str((SKILLS_DEST / "general").relative_to(_ROOT))],
+    memory=[str(AGENT_MD.relative_to(_ROOT))],
 
     # Tools
-    tools=[],
+    tools=[view_image], # + built-ins
 
     # HITL
     interrupt_on={
-        "write_file": True,  # Default: approve, edit, reject
-        "read_file": False,  # No interrupts needed
-        "edit_file": True,   # Default: approve, edit, reject
+        "edit_file": True, # If True, default options are: approve, edit, reject
+        "read_file": False,
+        "write_file": False,
     },
-    #checkpointer=InMemorySaver(), # Checkpointer is REQUIRED for human-in-the-loop!
+
+    # Backend
+    backend=backend,
+
+    # Middleware
+    middleware=[image_content_middleware],
+
+    # Debug mode
+    debug=settings.debug
+
+    # Checkpointer is REQUIRED for human-in-the-loop!
     # But LangGraph API platform manages persistence - No checkpointer needed.
-
-     debug=settings.debug
+    #from langgraph.checkpoint.memory import MemorySaver
+    #checkpointer=InMemorySaver(), 
 )
-
