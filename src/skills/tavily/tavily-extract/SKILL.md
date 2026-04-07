@@ -1,80 +1,74 @@
 ---
 name: tavily-extract
 description: |
-  Extract clean markdown or text content from specific URLs via the Tavily CLI. Use this skill when the user has one or more URLs and wants their content, says "extract", "grab the content from", "pull the text from", "get the page at", "read this webpage", or needs clean text from web pages. Handles JavaScript-rendered pages, returns LLM-optimized markdown, and supports query-focused chunking for targeted extraction. Can process up to 20 URLs in a single call.
-allowed-tools: Bash(tvly *)
+  Extract clean markdown or text content from specific URLs using Tavily. Use this skill when the user has one or more URLs and wants their content, says "extract", "grab the content from", "pull the text from", "get the page at", "read this webpage", or needs clean text from web pages. Handles JavaScript-rendered pages, returns LLM-optimized markdown, and supports query-focused chunking for targeted extraction.
 ---
 
-# tavily extract
+# Tavily Extract
 
-Extract clean markdown or text content from one or more URLs.
+Extract clean markdown or text content from specific URLs.
 
-## Before running any command
-
-If `tvly` is not found on PATH, install it first:
-
-```bash
-curl -fsSL https://cli.tavily.com/install.sh | bash && tvly login
-```
-
-Do not skip this step or fall back to other tools.
-
-See [tavily-cli](../tavily-cli/SKILL.md) for alternative install methods and auth options.
-
-## When to use
+## When to Use
 
 - You have a specific URL and want its content
 - You need text from JavaScript-rendered pages
-- Step 2 in the [workflow](../tavily-cli/SKILL.md): search → **extract** → map → crawl → research
+- Step 2 in the workflow: search → **extract** → map → crawl → research
 
-## Quick start
+## Tool: `tavily_extract`
 
-```bash
-# Single URL
-tvly extract "https://example.com/article" --json
+Call the `tavily_extract` tool with the following parameters:
 
-# Multiple URLs
-tvly extract "https://example.com/page1" "https://example.com/page2" --json
+### Required Parameters
 
-# Query-focused extraction (returns relevant chunks only)
-tvly extract "https://example.com/docs" --query "authentication API" --chunks-per-source 3 --json
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `url` or `urls` | string or list | URL(s) to extract content from |
 
-# JS-heavy pages
-tvly extract "https://app.example.com" --extract-depth advanced --json
+### Optional Parameters
 
-# Save to file
-tvly extract "https://example.com/article" -o article.md
-```
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `query` | string | None | Extract content relevant to this query (returns chunks instead of full page) |
+| `extract_depth` | string | "basic" | `basic` for simple pages, `advanced` for JavaScript-heavy sites |
+| `format` | string | "markdown" | `markdown` or `text` output format |
+| `include_images` | bool | False | Include image URLs in extracted content |
+| `include_favicon` | bool | False | Include website favicon URL |
 
-## Options
+## Extract Depth Comparison
 
-| Option | Description |
-|--------|-------------|
-| `--query` | Rerank chunks by relevance to this query |
-| `--chunks-per-source` | Chunks per URL (1-5, requires `--query`) |
-| `--extract-depth` | `basic` (default) or `advanced` (for JS pages) |
-| `--format` | `markdown` (default) or `text` |
-| `--include-images` | Include image URLs |
-| `--timeout` | Max wait time (1-60 seconds) |
-| `-o, --output` | Save output to file |
-| `--json` | Structured JSON output |
+| Depth | Speed | Coverage | Best for |
+|-------|-------|----------|----------|
+| `basic` | Fast | Good | Static pages, articles, documentation |
+| `advanced` | Slower | Comprehensive | SPAs, dynamic content, heavily JavaScript-rendered sites |
 
-## Extract depth
+## Usage Examples
 
-| Depth | When to use |
-|-------|-------------|
-| `basic` | Simple pages, fast — try this first |
-| `advanced` | JS-rendered SPAs, dynamic content, tables |
+**Extract a single article** — Get full content:
+- URL: "https://example.com/article"
+- Use defaults (basic depth, markdown format)
+
+**Extract multiple pages** — Batch processing:
+- URLs: ["https://example.com/page1", "https://example.com/page2"]
+- Process multiple URLs in one call
+
+**JavaScript-heavy site** — Modern app or SPA:
+- URL: "https://app.example.com"
+- Set `extract_depth: "advanced"`
+
+**Query-focused extraction** — Get only relevant sections:
+- URL: "https://docs.example.com/api"
+- Set `query: "authentication methods"` to extract only relevant chunks
+- More efficient than extracting entire page
 
 ## Tips
 
-- **Max 20 URLs per request** — batch larger lists into multiple calls.
-- **Use `--query` + `--chunks-per-source`** to get only relevant content instead of full pages.
-- **Try `basic` first**, fall back to `advanced` if content is missing.
-- **Set `--timeout`** for slow pages (up to 60s).
-- If search results already contain the content you need (via `--include-raw-content`), skip the extract step.
+- **Use `query`** to extract only relevant content instead of full pages
+- **Try `basic` first**, only use `advanced` if content is missing
+- **Include images** only when visual content matters (adds token usage)
+- **Batch multiple URLs** when possible
+- If search results already show the content you need, you may skip extract
 
-## See also
+## See Also
 
 - [tavily-search](../tavily-search/SKILL.md) — find pages when you don't have a URL
-- [tavily-crawl](../tavily-crawl/SKILL.md) — extract content from many pages on a site
+- [tavily-crawl](../tavily-crawl/SKILL.md) — extract from many pages on a site

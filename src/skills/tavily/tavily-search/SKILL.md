@@ -1,91 +1,81 @@
 ---
 name: tavily-search
 description: |
-  Search the web with LLM-optimized results via the Tavily CLI. Use this skill when the user wants to search the web, find articles, look up information, get recent news, discover sources, or says "search for", "find me", "look up", "what's the latest on", "find articles about", or needs current information from the internet. Returns relevant results with content snippets, relevance scores, and metadata — optimized for LLM consumption. Supports domain filtering, time ranges, and multiple search depths.
-allowed-tools: Bash(tvly *)
+  Search the web with LLM-optimized results using Tavily. Use this skill when the user wants to search the web, find articles, look up information, get recent news, discover sources, or says "search for", "find me", "look up", "what's the latest on", "find articles about", or needs current information from the internet. Returns relevant results with content snippets, relevance scores, and metadata — optimized for LLM consumption. Supports domain filtering, time ranges, and multiple search depths.
 ---
 
-# tavily search
+# Tavily Search
 
 Web search returning LLM-optimized results with content snippets and relevance scores.
 
-## Before running any command
-
-If `tvly` is not found on PATH, install it first:
-
-```bash
-curl -fsSL https://cli.tavily.com/install.sh | bash && tvly login
-```
-
-Do not skip this step or fall back to other tools.
-
-See [tavily-cli](../tavily-cli/SKILL.md) for alternative install methods and auth options.
-
-## When to use
+## When to Use
 
 - You need to find information on any topic
 - You don't have a specific URL yet
-- First step in the [workflow](../tavily-cli/SKILL.md): **search** → extract → map → crawl → research
+- First step in the workflow: **search** → extract → map → crawl → research
 
-## Quick start
+## Tool: `tavily_search`
 
-```bash
-# Basic search
-tvly search "your query" --json
+Call the `tavily_search` tool with the following parameters:
 
-# Advanced search with more results
-tvly search "quantum computing" --depth advanced --max-results 10 --json
+### Required Parameters
 
-# Recent news
-tvly search "AI news" --time-range week --topic news --json
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `query` | string | Search query (keep under 400 characters) |
 
-# Domain-filtered
-tvly search "SEC filings" --include-domains sec.gov,reuters.com --json
+### Optional Parameters
 
-# Include full page content in results
-tvly search "react hooks tutorial" --include-raw-content --max-results 3 --json
-```
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `max_results` | int | 5 | Number of results (0-20) |
+| `topic` | string | "general" | `general`, `news`, or `finance` |
+| `search_depth` | string | "basic" | `basic` or `advanced` |
+| `time_range` | string | None | `day`, `week`, `month`, or `year` |
+| `include_domains` | list | None | Focus results to specific domains |
+| `exclude_domains` | list | None | Exclude specific domains |
+| `country` | string | None | Boost results from specific country |
+| `include_answer` | bool | False | Include AI-generated answer in results |
+| `include_raw_content` | bool | False | Include full page content (saves separate extract call) |
+| `include_images` | bool | False | Include image results |
+| `include_image_descriptions` | bool | False | Include AI descriptions of images |
+| `include_favicon` | bool | False | Include website favicon URL |
 
-## Options
-
-| Option | Description |
-|--------|-------------|
-| `--depth` | `ultra-fast`, `fast`, `basic` (default), `advanced` |
-| `--max-results` | Max results, 0-20 (default: 5) |
-| `--topic` | `general` (default), `news`, `finance` |
-| `--time-range` | `day`, `week`, `month`, `year` |
-| `--start-date` | Results after date (YYYY-MM-DD) |
-| `--end-date` | Results before date (YYYY-MM-DD) |
-| `--include-domains` | Comma-separated domains to include |
-| `--exclude-domains` | Comma-separated domains to exclude |
-| `--country` | Boost results from country |
-| `--include-answer` | Include AI answer (`basic` or `advanced`) |
-| `--include-raw-content` | Include full page content (`markdown` or `text`) |
-| `--include-images` | Include image results |
-| `--include-image-descriptions` | Include AI image descriptions |
-| `--chunks-per-source` | Chunks per source (advanced/fast depth only) |
-| `-o, --output` | Save output to file |
-| `--json` | Structured JSON output |
-
-## Search depth
+## Search Depth Comparison
 
 | Depth | Speed | Relevance | Best for |
 |-------|-------|-----------|----------|
-| `ultra-fast` | Fastest | Lower | Real-time chat, autocomplete |
-| `fast` | Fast | Good | Need chunks, latency matters |
 | `basic` | Medium | High | General-purpose (default) |
 | `advanced` | Slower | Highest | Precision, specific facts |
 
+## Usage Examples
+
+**Basic search** — Find articles on a topic:
+- Query: "climate change impacts 2025"
+- Use defaults (5 results, basic depth)
+
+**News search** — Get recent information:
+- Query: "AI breakthroughs"
+- Set `topic: "news"` and `time_range: "week"`
+
+**Domain-filtered search** — Focus on trusted sources:
+- Query: "SEC filings energy sector"
+- Set `include_domains: ["sec.gov", "reuters.com"]`
+
+**Comprehensive search** — Get full content with results:
+- Query: "React hooks tutorial"
+- Set `max_results: 3` and `include_raw_content: true` (saves extract step)
+
 ## Tips
 
-- **Keep queries under 400 characters** — think search query, not prompt.
-- **Break complex queries into sub-queries** for better results.
-- **Use `--include-raw-content`** when you need full page text (saves a separate extract call).
-- **Use `--include-domains`** to focus on trusted sources.
-- **Use `--time-range`** for recent information.
-- Read from stdin: `echo "query" | tvly search - --json`
+- **Keep queries concise** — under 400 characters, think search query not prompt
+- **Break complex queries** — multiple searches often yield better results than one long query
+- **Use `include_raw_content`** when you need full page text instead of snippets
+- **Use `include_domains`** to focus on authoritative sources
+- **Use `time_range`** for recent/breaking information
+- **Use `advanced` depth** only when you need high precision (slower)
 
-## See also
+## See Also
 
 - [tavily-extract](../tavily-extract/SKILL.md) — extract content from specific URLs
 - [tavily-research](../tavily-research/SKILL.md) — comprehensive multi-source research

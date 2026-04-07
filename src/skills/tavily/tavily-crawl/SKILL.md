@@ -1,99 +1,87 @@
 ---
 name: tavily-crawl
 description: |
-  Crawl websites and extract content from multiple pages via the Tavily CLI. Use this skill when the user wants to crawl a site, download documentation, extract an entire docs section, bulk-extract pages, save a site as local markdown files, or says "crawl", "get all the pages", "download the docs", "extract everything under /docs", "bulk extract", or needs content from many pages on the same domain. Supports depth/breadth control, path filtering, semantic instructions, and saving each page as a local markdown file.
-allowed-tools: Bash(tvly *)
+  Crawl websites and extract content from multiple pages using Tavily. Use this skill when the user wants to crawl a site, download documentation, extract an entire docs section, bulk-extract pages, or says "crawl", "get all the pages", "download the docs", "extract everything under /docs", "bulk extract", or needs content from many pages on the same domain. Supports depth/breadth control, path filtering, and semantic instructions.
 ---
 
-# tavily crawl
+# Tavily Crawl
 
-Crawl a website and extract content from multiple pages. Supports saving each page as a local markdown file.
+Crawl a website and extract content from multiple pages.
 
-## Before running any command
-
-If `tvly` is not found on PATH, install it first:
-
-```bash
-curl -fsSL https://cli.tavily.com/install.sh | bash && tvly login
-```
-
-Do not skip this step or fall back to other tools.
-
-See [tavily-cli](../tavily-cli/SKILL.md) for alternative install methods and auth options.
-
-## When to use
+## When to Use
 
 - You need content from many pages on a site (e.g., all `/docs/`)
-- You want to download documentation for offline use
-- Step 4 in the [workflow](../tavily-cli/SKILL.md): search → extract → map → **crawl** → research
+- You want to bulk-extract pages from a single domain
+- Step 4 in the workflow: search → extract → map → **crawl** → research
 
-## Quick start
+## Tool: `tavily_crawl`
 
-```bash
-# Basic crawl
-tvly crawl "https://docs.example.com" --json
+Call the `tavily_crawl` tool with the following parameters:
 
-# Save each page as a markdown file
-tvly crawl "https://docs.example.com" --output-dir ./docs/
+### Required Parameters
 
-# Deeper crawl with limits
-tvly crawl "https://docs.example.com" --max-depth 2 --limit 50 --json
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `url` | string | Website to crawl |
 
-# Filter to specific paths
-tvly crawl "https://example.com" --select-paths "/api/.*,/guides/.*" --exclude-paths "/blog/.*" --json
+### Optional Parameters
 
-# Semantic focus (returns relevant chunks, not full pages)
-tvly crawl "https://docs.example.com" --instructions "Find authentication docs" --chunks-per-source 3 --json
-```
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `max_depth` | int | 1 | How deep to crawl (1-5 levels) |
+| `max_breadth` | int | 20 | How many links to follow per page |
+| `limit` | int | 50 | Maximum total pages to extract |
+| `instructions` | string | None | Natural language guidance for semantic focus (extracts relevant chunks instead of full pages) |
+| `extract_depth` | string | "basic" | `basic` for simple sites, `advanced` for JavaScript-heavy sites |
+| `format` | string | "markdown" | `markdown` or `text` output format |
+| `select_paths` | list | None | Regex patterns for URL paths to include |
+| `exclude_paths` | list | None | Regex patterns for URL paths to exclude |
+| `select_domains` | list | None | Domain regex patterns to include |
+| `exclude_domains` | list | None | Domain regex patterns to exclude |
+| `allow_external` | bool | True | Follow external domain links or stay on domain |
+| `include_images` | bool | False | Include image URLs in results |
 
-## Options
+## Usage Examples
 
-| Option | Description |
-|--------|-------------|
-| `--max-depth` | Levels deep (1-5, default: 1) |
-| `--max-breadth` | Links per page (default: 20) |
-| `--limit` | Total pages cap (default: 50) |
-| `--instructions` | Natural language guidance for semantic focus |
-| `--chunks-per-source` | Chunks per page (1-5, requires `--instructions`) |
-| `--extract-depth` | `basic` (default) or `advanced` |
-| `--format` | `markdown` (default) or `text` |
-| `--select-paths` | Comma-separated regex patterns to include |
-| `--exclude-paths` | Comma-separated regex patterns to exclude |
-| `--select-domains` | Comma-separated regex for domains to include |
-| `--exclude-domains` | Comma-separated regex for domains to exclude |
-| `--allow-external / --no-external` | Include external links (default: allow) |
-| `--include-images` | Include images |
-| `--timeout` | Max wait (10-150 seconds) |
-| `-o, --output` | Save JSON output to file |
-| `--output-dir` | Save each page as a .md file in directory |
-| `--json` | Structured JSON output |
+**Basic crawl** — Get all content from a documentation site:
+- URL: "https://docs.example.com"
+- Use defaults (depth: 1, limit: 50)
 
-## Crawl for context vs. data collection
+**Deeper crawl with limits** — Explore multiple levels:
+- URL: "https://docs.example.com"
+- Set `max_depth: 2`, `limit: 100`
 
-**For agentic use** (feeding results to an LLM):
+**Path-filtered crawl** — Focus on specific sections:
+- URL: "https://example.com"
+- Set `select_paths: ["/api/.*", "/guides/.*"]`
+- Set `exclude_paths: ["/blog/.*"]`
 
-Always use `--instructions` + `--chunks-per-source`. Returns only relevant chunks instead of full pages — prevents context explosion.
+**Semantic focus** — Get only relevant chunks for context:
+- URL: "https://docs.example.com"
+- Set `instructions: "Find authentication and security documentation"`
+- Returns relevant chunks instead of full pages (more efficient)
 
-```bash
-tvly crawl "https://docs.example.com" --instructions "API authentication" --chunks-per-source 3 --json
-```
+## Crawl Strategies
 
-**For data collection** (saving to files):
+**For LLM Context** — Use `instructions` to extract only relevant content:
+- Prevents context explosion
+- Returns semantic chunks instead of full pages
+- More efficient token usage
 
-Use `--output-dir` without `--chunks-per-source` to get full pages as markdown files.
-
-```bash
-tvly crawl "https://docs.example.com" --max-depth 2 --output-dir ./docs/
-```
+**For Data Collection** — Crawl everything with path filtering:
+- Use `select_paths` and `limit` to control scope
+- Don't use `instructions` when you want full pages
 
 ## Tips
 
-- **Start conservative** — `--max-depth 1`, `--limit 20` — and scale up.
-- **Use `--select-paths`** to focus on the section you need.
-- **Use map first** to understand site structure before a full crawl.
-- **Always set `--limit`** to prevent runaway crawls.
+- **Start conservative** — `max_depth: 1`, `limit: 20` — scale up as needed
+- **Use `instructions`** to extract only relevant content for LLM use
+- **Use `select_paths`** to focus on specific sections
+- **Always set `limit`** to prevent runaway crawls
+- **Use map first** to understand site structure before deciding crawl scope
+- **Exclude domains** to stay on primary domain
 
-## See also
+## See Also
 
 - [tavily-map](../tavily-map/SKILL.md) — discover URLs before deciding to crawl
 - [tavily-extract](../tavily-extract/SKILL.md) — extract individual pages

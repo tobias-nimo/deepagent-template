@@ -1,84 +1,84 @@
 ---
 name: tavily-map
 description: |
-  Discover and list all URLs on a website without extracting content, via the Tavily CLI. Use this skill when the user wants to find a specific page on a large site, list all URLs, see the site structure, find where something is on a domain, or says "map the site", "find the URL for", "what pages are on", "list all pages", or "site structure". Faster than crawling — returns URLs only. Essential when you know the site but not the exact page. Combine with extract for targeted content retrieval.
-allowed-tools: Bash(tvly *)
+  Discover and list all URLs on a website without extracting content using Tavily. Use this skill when the user wants to find a specific page on a large site, list all URLs, see the site structure, find where something is on a domain, or says "map the site", "find the URL for", "what pages are on", "list all pages", or "site structure". Faster than crawling — returns URLs only. Combine with extract for targeted content retrieval.
 ---
 
-# tavily map
+# Tavily Map
 
-Discover URLs on a website without extracting content. Faster than crawling.
+Discover and list URLs on a website without extracting content. Faster than crawling.
 
-## Before running any command
+## When to Use
 
-If `tvly` is not found on PATH, install it first:
-
-```bash
-curl -fsSL https://cli.tavily.com/install.sh | bash && tvly login
-```
-
-Do not skip this step or fall back to other tools.
-
-See [tavily-cli](../tavily-cli/SKILL.md) for alternative install methods and auth options.
-
-## When to use
-
-- You need to find a specific subpage on a large site
+- You need to find a specific page on a large site
 - You want a list of all URLs before deciding what to extract or crawl
-- Step 3 in the [workflow](../tavily-cli/SKILL.md): search → extract → **map** → crawl → research
+- Step 3 in the workflow: search → extract → **map** → crawl → research
 
-## Quick start
+## Tool: `tavily_map`
 
-```bash
-# Discover all URLs
-tvly map "https://docs.example.com" --json
+Call the `tavily_map` tool with the following parameters:
 
-# With natural language filtering
-tvly map "https://docs.example.com" --instructions "Find API docs and guides" --json
+### Required Parameters
 
-# Filter by path
-tvly map "https://example.com" --select-paths "/blog/.*" --limit 500 --json
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `url` | string | Website to discover URLs from |
 
-# Deep map
-tvly map "https://example.com" --max-depth 3 --limit 200 --json
-```
+### Optional Parameters
 
-## Options
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `max_depth` | int | 1 | How deep to discover (1-5 levels) |
+| `max_breadth` | int | 20 | How many links to follow per page |
+| `limit` | int | 50 | Maximum URLs to discover |
+| `instructions` | string | None | Natural language guidance to filter URLs semantically |
+| `select_paths` | list | None | Regex patterns for URL paths to include |
+| `exclude_paths` | list | None | Regex patterns for URL paths to exclude |
+| `select_domains` | list | None | Domain regex patterns to include |
+| `exclude_domains` | list | None | Domain regex patterns to exclude |
+| `allow_external` | bool | True | Follow external domain links or stay on domain |
 
-| Option | Description |
-|--------|-------------|
-| `--max-depth` | Levels deep (1-5, default: 1) |
-| `--max-breadth` | Links per page (default: 20) |
-| `--limit` | Max URLs to discover (default: 50) |
-| `--instructions` | Natural language guidance for URL filtering |
-| `--select-paths` | Comma-separated regex patterns to include |
-| `--exclude-paths` | Comma-separated regex patterns to exclude |
-| `--select-domains` | Comma-separated regex for domains to include |
-| `--exclude-domains` | Comma-separated regex for domains to exclude |
-| `--allow-external / --no-external` | Include external links |
-| `--timeout` | Max wait (10-150 seconds) |
-| `-o, --output` | Save output to file |
-| `--json` | Structured JSON output |
+## Usage Examples
 
-## Map + Extract pattern
+**Discover all URLs** — Get full site map:
+- URL: "https://docs.example.com"
+- Use defaults (depth: 1, limit: 50)
 
-Use `map` to find the right page, then `extract` it. This is often more efficient than crawling an entire site:
+**Semantic URL filtering** — Find pages matching description:
+- URL: "https://docs.example.com"
+- Set `instructions: "Find API documentation and authentication guides"`
 
-```bash
-# Step 1: Find the authentication docs
-tvly map "https://docs.example.com" --instructions "authentication" --json
+**Path-filtered discovery** — Focus on specific sections:
+- URL: "https://example.com"
+- Set `select_paths: ["/blog/.*"]`
+- Set `limit: 500`
 
-# Step 2: Extract the specific page you found
-tvly extract "https://docs.example.com/api/authentication" --json
-```
+**Deep site mapping** — Explore multiple levels:
+- URL: "https://example.com"
+- Set `max_depth: 3`, `limit: 200`
+
+## Map + Extract Workflow
+
+More efficient than crawl when you only need specific pages:
+
+**Step 1: Map** — Discover available URLs:
+- Call `tavily_map` with site URL
+- Review results to find desired pages
+- Note specific URL paths
+
+**Step 2: Extract** — Get content from specific URLs:
+- Call `tavily_extract` on the URLs you found
+- Extract only what you need
 
 ## Tips
 
-- **Map is URL discovery only** — no content extraction. Use `extract` or `crawl` for content.
-- **Map + extract beats crawl** when you only need a few specific pages from a large site.
-- **Use `--instructions`** for semantic filtering when path patterns aren't enough.
+- **Map returns URLs only** — no content. Use extract or crawl to get content
+- **Map + extract beats crawl** for targeted research (when you only need a few pages)
+- **Use instructions** for semantic filtering when paths alone aren't enough
+- **Always set limit** to prevent discovering thousands of URLs
+- **Exclude domains** to stay on primary domain
 
-## See also
+## See Also
 
 - [tavily-extract](../tavily-extract/SKILL.md) — extract content from URLs you discover
 - [tavily-crawl](../tavily-crawl/SKILL.md) — bulk extract when you need many pages
