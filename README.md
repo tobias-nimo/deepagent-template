@@ -1,6 +1,6 @@
 # DeepAgent Template
 
-A production-ready template for building [**LangChain Deep Agents**](https://docs.langchain.com/oss/python/deepagents/overview) with [**Agent Chat UI**](https://github.com/langchain-ai/agent-chat-ui).
+A production-ready template for building [**LangChain Deep Agents**](https://docs.langchain.com/oss/python/deepagents/overview).
 
 ## Prerequisites
 
@@ -65,14 +65,15 @@ This template ships **backend-only**. Connect any LangGraph-compatible chat UI t
    - **LangSmith API key**: optional, only needed for deployed (non-local) agents
 3. Start chatting — the UI auto-detects tool calls and HITL interrupts.
 
-### Option B — Run Agent Chat UI locally
+### Option B — Deep Agents UI
+
+A chat UI purpose-built for Deep Agents, with native support for tool calls, HITL interrupts, and agent workflows.
 
 ```bash
-git clone https://github.com/langchain-ai/agent-chat-ui.git
-cd agent-chat-ui
-pnpm install
-pnpm dev
-# Open: http://localhost:5173
+git clone https://github.com/langchain-ai/deep-agents-ui.git
+cd deep-agents-ui
+yarn install
+yarn dev
 ```
 
 Then enter the same connection details as above.
